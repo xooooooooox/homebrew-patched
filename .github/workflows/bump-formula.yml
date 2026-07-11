@@ -1,0 +1,35 @@
+name: "[Formula] Bump a patched formula to a new fork tag"
+
+on:
+  workflow_dispatch:
+    inputs:
+      formula:
+        description: "Formula name (e.g. yadm)"
+        required: true
+      tag:
+        description: "Fork tag (e.g. 3.5.0-patched.1)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bump formula
+        run: ./scripts/bump-formula.sh "${{ inputs.formula }}" "${{ inputs.tag }}"
+
+      - name: Commit & push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "Formula/${{ inputs.formula }}.rb"
+          if git diff --cached --quiet; then
+            echo "No changes to commit (formula already at ${{ inputs.tag }})"
+            exit 0
+          fi
+          git commit -m "${{ inputs.formula }}: bump to ${{ inputs.tag }}"
+          git push
