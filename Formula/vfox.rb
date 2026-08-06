@@ -11,6 +11,13 @@ class Vfox < Formula
   license "Apache-2.0"
   revision 1
 
+  # Watch the upstream repo (the fork tag never moves): `brew livecheck`
+  # reports when upstream ships a release newer than the patched base.
+  livecheck do
+    url "https://github.com/version-fox/vfox"
+    strategy :github_latest
+  end
+
   depends_on "go" => :build
 
   def install

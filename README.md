@@ -18,12 +18,19 @@ brew install xooooooooox/patched/<tool>
 | Tool | Patch | Upstream issue | Retire when |
 |------|-------|----------------|-------------|
 | [yadm](https://github.com/xooooooooox/yadm/tree/fix/zsh-completion-add) | zsh completion for `add`/`checkout`: delegate to git's completion (CWD-relative candidates, respects ignore rules, no full `$HOME` scan) | [yadm-dev/yadm#359](https://github.com/yadm-dev/yadm/issues/359), [#355](https://github.com/yadm-dev/yadm/issues/355) | fix merged upstream + released |
+| [vfox](https://github.com/xooooooooox/vfox/tree/patched-v1.0.11) | deterministic PATH order in `vfox env` output: collect per-SDK envs, merge sorted-by-name after `g.Wait()` — goroutine completion order shuffled same-scope entries, permanently invalidating the env-state cache (slow rebuild on every hook run / `cd`) | [version-fox/vfox#690](https://github.com/version-fox/vfox/issues/690), PR [#691](https://github.com/version-fox/vfox/pull/691) | PR merged + released (> 1.0.11) |
 
 ## Conventions
 
 - Every formula's `url` points at a `github.com/xooooooooox/<tool>` fork tag tarball.
-- Fork tags are named `<upstream-version>-patched.<n>` (e.g. `3.5.0-patched.1`).
+- Fork tags are named `<upstream-tag>-patched.<n>`, following the upstream tag
+  style (e.g. `3.5.0-patched.1` for yadm, `v1.0.11-patched.1` for vfox).
 - Formulas declare explicit `version` (upstream version) and `revision` (the `<n>`).
+- Formulas carry a `livecheck` block pointing at the **upstream** repo (the fork
+  tag never moves), so `brew livecheck --tap xooooooooox/patched` reports when
+  upstream ships a newer release — the "released" half of *Retire when*. The
+  "merged" half arrives via GitHub notifications (issue/PR author is
+  auto-subscribed).
 
 ## Bumping a formula
 

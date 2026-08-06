@@ -3,9 +3,17 @@ class Yadm < Formula
   homepage "https://yadm.io/"
   url "https://github.com/xooooooooox/yadm/archive/refs/tags/3.5.0-patched.1.tar.gz"
   version "3.5.0"
-  revision 1
   sha256 "caeed8711d76e39fcfbe6c9d2d6ff30943fc2d8e74c6be5334a9cb7facc0f415"
   license "GPL-3.0-or-later"
+  revision 1
+
+  # Watch the upstream repo (the fork tag never moves): `brew livecheck`
+  # reports when upstream ships a release newer than the patched base.
+  # (yadm publishes no GitHub Releases, so check git tags instead.)
+  livecheck do
+    url "https://github.com/yadm-dev/yadm.git"
+    strategy :git
+  end
 
   def install
     system "make", "install", "PREFIX=#{prefix}"
