@@ -19,6 +19,7 @@ brew install xooooooooox/patched/<tool>
 |------|-------|----------------|-------------|
 | [yadm](https://github.com/xooooooooox/yadm/tree/fix/zsh-completion-add) | zsh completion for `add`/`checkout`: delegate to git's completion (CWD-relative candidates, respects ignore rules, no full `$HOME` scan) | [yadm-dev/yadm#359](https://github.com/yadm-dev/yadm/issues/359), [#355](https://github.com/yadm-dev/yadm/issues/355) | fix merged upstream + released |
 | [vfox](https://github.com/xooooooooox/vfox/tree/patched-v1.0.11) | deterministic PATH order in `vfox env` output: collect per-SDK envs, merge sorted-by-name after `g.Wait()` — goroutine completion order shuffled same-scope entries, permanently invalidating the env-state cache (slow rebuild on every hook run / `cd`) | [version-fox/vfox#690](https://github.com/version-fox/vfox/issues/690), PR [#691](https://github.com/version-fox/vfox/pull/691) | PR merged + released (> 1.0.11) |
+| [lazygit](https://github.com/xooooooooox/lazygit/tree/patched-v0.64.0) | submodule escape in bare repos opened via `--git-dir`/`--work-tree` (yadm/vcsh): repo-path stack records the env vars alongside the path and restores them on the way back — they were cleared on entering the submodule and never restored, so escape failed with "not a git repository" (or silently switched to an enclosing repo) | [jesseduffield/lazygit#1118](https://github.com/jesseduffield/lazygit/issues/1118) | fix merged upstream + released (> 0.64.0) |
 
 ## Conventions
 
