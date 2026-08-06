@@ -54,3 +54,16 @@ tap that follows the conventions above.
    `revision` / `sha256`).
 3. Add a row to the Tools table above.
 4. Future updates use the bump workflow — no more manual formula edits.
+
+## Retiring a tool
+
+When the upstream fix is merged **and** released (`brew livecheck --tap
+xooooooooox/patched` reports a newer upstream version), retire the formula —
+**mark, don't delete**: the fork, tag and formula stay as history and as the
+template for the next patch.
+
+1. Reinstall from core: `brew uninstall <tool> && brew install <tool>`.
+2. Mark the formula with brew's own DSL:
+   `deprecate! date: "...", because: "fixed upstream in vX.Y.Z"`.
+3. Move its row from *Tools* to a *Retired* table (created beside *Tools* on
+   first use).
