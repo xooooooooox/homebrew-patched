@@ -1,15 +1,18 @@
-# Patched vfox: deterministic PATH order in `vfox env` output — upstream
+# Patched vfox: (1) deterministic PATH order in `vfox env` output — upstream
 # orders same-scope SDK paths by goroutine completion, permanently
-# invalidating the env-state cache (slow rebuild on every hook run).
-# Retire this formula once upstream ships a fix (> v1.0.11).
+# invalidating the env-state cache (slow rebuild on every hook run);
+# (2) machine-global shared env cache — new sessions reuse the computed env
+# output instead of rebuilding it, with session-scope / degraded outputs
+# excluded from sharing.
+# Retire this formula once upstream ships both fixes (> v1.0.11).
 class Vfox < Formula
-  desc "Cross-language version manager (patched: deterministic env PATH order)"
+  desc "Cross-language version manager (patched: stable PATH order + shared env cache)"
   homepage "https://vfox.dev/"
-  url "https://github.com/xooooooooox/vfox/archive/refs/tags/v1.0.11-patched.1.tar.gz"
+  url "https://github.com/xooooooooox/vfox/archive/refs/tags/v1.0.11-patched.2.tar.gz"
   version "1.0.11"
-  sha256 "b0ed49cab852139a05f811d982777b630e3ac6debe18c3fddc867541ce6c26d1"
+  sha256 "c0fcc7662d39d3ac603488743fc18509218d29b75a93f763a4b15f5ccb3f52f3"
   license "Apache-2.0"
-  revision 1
+  revision 2
 
   # Watch the upstream repo (the fork tag never moves): `brew livecheck`
   # reports when upstream ships a release newer than the patched base.
