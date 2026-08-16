@@ -1,16 +1,17 @@
-# Patched lazygit: escaping a submodule back to a bare repo opened via
-# --git-dir/--work-tree (yadm/vcsh dotfiles) failed with "not a git
-# repository" -- the env vars were cleared on entering the submodule and
-# never restored (upstream #1118).
-# Retire this formula once upstream ships a fix (> v0.64.0).
+# Patched lazygit: the recent repos menu (ctrl+r) could not return to a
+# dotfile-style repo opened via --git-dir/--work-tree (yadm/vcsh) -- the
+# list only stored paths, so the entry was filtered out and, when present,
+# switching to it failed with "not a git repository". The list now remembers
+# the git location env vars per repo. Base: upstream master (> v0.64.1,
+# includes the #5910 submodule-escape fix that patched.1-of-0.64.0 carried).
+# Retire this formula once upstream ships a release with a recent-repos fix.
 class Lazygit < Formula
-  desc "Simple terminal UI for git commands (patched: submodule escape in bare repos)"
+  desc "Simple terminal UI for git commands (patched: recent repos menu for dotfile repos)"
   homepage "https://github.com/jesseduffield/lazygit/"
-  url "https://github.com/xooooooooox/lazygit/archive/refs/tags/v0.64.0-patched.1.tar.gz"
-  version "0.64.0"
-  sha256 "e134e24b821342ec5a671b7b6da3ddca3607f605a915f590fb9abfc17f52d140"
+  url "https://github.com/xooooooooox/lazygit/archive/refs/tags/v0.64.1-patched.1.tar.gz"
+  version "0.64.1"
+  sha256 "3a5d4ebf03bbc22cd796caa1b887bf274dd86993bf9aae94900e0ee547013d26"
   license "MIT"
-  revision 1
 
   # Watch the upstream repo (the fork tag never moves): `brew livecheck`
   # reports when upstream ships a release newer than the patched base.
