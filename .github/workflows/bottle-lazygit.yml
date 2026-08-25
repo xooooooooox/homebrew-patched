@@ -1,0 +1,67 @@
+# Builds a Homebrew bottle for the patched lazygit so old Intel Macs
+# (macOS 12, no core bottles, would otherwise compile go + lazygit from
+# source) can pour a prebuilt keg. lazygit is pure Go, so an ubuntu
+# runner cross-compiles darwin/amd64 with CGO off; the resulting binary
+# has no prefix references, hence cellar: :any_skip_relocation in the
+# formula's bottle block.
+name: bottle-lazygit
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "xooooooooox/lazygit tag to bottle (e.g. v0.64.1-patched.1)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  bottle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out lazygit fork at tag
+        uses: actions/checkout@v4
+        with:
+          repository: xooooooooox/lazygit
+          ref: ${{ inputs.tag }}
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Build darwin/amd64 keg
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          # v0.64.1-patched.1 -> formula version 0.64.1
+          version="${TAG#v}"; version="${version%%-patched*}"
+          echo "version=$version" >> "$GITHUB_ENV"
+          keg="bottle/lazygit/$version"
+          mkdir -p "$keg/bin"
+          # ldflags mirror Formula/lazygit.rb (version + buildSource=tap.user)
+          GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 \
+            go build -mod=vendor \
+            -ldflags "-X main.version=$version -X main.buildSource=xooooooooox" \
+            -o "$keg/bin/lazygit" .
+          cp LICENSE README.md "$keg/"
+
+      - name: Pack bottle and print sha256
+        run: |
+          bottle="lazygit--${version}.monterey.bottle.tar.gz"
+          tar --owner=0 --group=0 --numeric-owner -czf "$bottle" -C bottle lazygit
+          sha256sum "$bottle" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload to tap release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          release="lazygit-$TAG"
+          bottle="lazygit--${version}.monterey.bottle.tar.gz"
+          gh release view "$release" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1 || \
+            gh release create "$release" -R "$GITHUB_REPOSITORY" \
+              --title "$release" \
+              --notes "Homebrew bottle for xooooooooox/lazygit tag $TAG (darwin/amd64, monterey)."
+          gh release upload "$release" "$bottle" -R "$GITHUB_REPOSITORY" --clobber
