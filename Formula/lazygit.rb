@@ -20,6 +20,13 @@ class Lazygit < Formula
     strategy :github_latest
   end
 
+  # Poured on machines Homebrew no longer bottles for (Intel/macOS 12);
+  # built by this tap's bottle-lazygit.yml workflow -- see README "Bottles".
+  bottle do
+    root_url "https://github.com/xooooooooox/homebrew-patched/releases/download/lazygit-v0.64.1-patched.1"
+    sha256 cellar: :any_skip_relocation, monterey: "5e0a1b96647fabd1cccee9561b33190fbc6df3f5e4f0dfbadfe482a35e87b7e1"
+  end
+
   depends_on "go" => :build
 
   def install

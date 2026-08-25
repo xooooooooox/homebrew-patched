@@ -46,6 +46,27 @@ The workflow recomputes the tarball sha256 and updates `url` / `sha256` /
 `version` / `revision` in `Formula/<tool>.rb` — works for any formula in this
 tap that follows the conventions above.
 
+The bump workflow does **not** touch a formula's `bottle do` block. If the
+formula carries one, re-run `bottle-<tool>.yml` for the new tag and update
+`root_url` + `sha256`, or delete the block — a stale bottle block fails
+installs with a 404 / checksum mismatch.
+
+## Bottles
+
+Formulas here normally build from source. For machines on a macOS that
+Homebrew no longer ships core bottles for (e.g. an Intel Mac on Monterey,
+where installing lazygit means first compiling go itself), the tap can carry
+its own bottle:
+
+- `bottle-<tool>.yml` (workflow_dispatch, input = fork tag) cross-compiles
+  the tool on an ubuntu runner (pure-Go tools only, `CGO_ENABLED=0`), packs
+  the keg as `<tool>--<version>.<os>.bottle.tar.gz`, and uploads it to a
+  release named `<tool>-<fork-tag>` on this repo.
+- The formula's `bottle do` block points `root_url` at that release. The
+  binaries embed no prefix, hence `cellar: :any_skip_relocation` — the same
+  bottle serves `/usr/local` and `/opt/homebrew`.
+- Currently lazygit-only, `monterey` tag.
+
 ## Adding a new tool
 
 1. Fork the upstream project, apply the patch on a branch, tag it
@@ -66,5 +87,6 @@ template for the next patch.
 1. Reinstall from core: `brew uninstall <tool> && brew install <tool>`.
 2. Mark the formula with brew's own DSL:
    `deprecate! date: "...", because: "fixed upstream in vX.Y.Z"`.
+   Remove its `bottle do` block, if any (bottle releases stay up as history).
 3. Move its row from *Tools* to a *Retired* table (created beside *Tools* on
    first use).
