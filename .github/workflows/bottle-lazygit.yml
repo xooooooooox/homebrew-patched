@@ -49,7 +49,7 @@ jobs:
 
       - name: Pack bottle and print sha256
         run: |
-          bottle="lazygit--${version}.monterey.bottle.tar.gz"
+          bottle="lazygit-${version}.monterey.bottle.tar.gz"
           tar --owner=0 --group=0 --numeric-owner -czf "$bottle" -C bottle lazygit
           sha256sum "$bottle" | tee -a "$GITHUB_STEP_SUMMARY"
 
@@ -59,7 +59,7 @@ jobs:
           TAG: ${{ inputs.tag }}
         run: |
           release="lazygit-$TAG"
-          bottle="lazygit--${version}.monterey.bottle.tar.gz"
+          bottle="lazygit-${version}.monterey.bottle.tar.gz"
           gh release view "$release" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1 || \
             gh release create "$release" -R "$GITHUB_REPOSITORY" \
               --title "$release" \

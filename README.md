@@ -6,6 +6,8 @@ Each formula here builds from a fork of the upstream project with a small,
 well-scoped patch applied. When the fix lands upstream, the formula is
 retired and users can return to homebrew-core.
 
+Sibling taps: [legacy](https://github.com/xooooooooox/homebrew-legacy) (Homebrew's historical bottles, pinned old versions) - [prebuilt](https://github.com/xooooooooox/homebrew-prebuilt) (official upstream binaries).
+
 ## Usage
 
 ```bash
@@ -60,7 +62,9 @@ its own bottle:
 
 - `bottle-<tool>.yml` (workflow_dispatch, input = fork tag) cross-compiles
   the tool on an ubuntu runner (pure-Go tools only, `CGO_ENABLED=0`), packs
-  the keg as `<tool>--<version>.<os>.bottle.tar.gz`, and uploads it to a
+  the keg as `<tool>-<version>.<os>.bottle.tar.gz` (single dash: brew's
+  `Bottle::Filename#url_encode`, used for custom `root_url`s -- the
+  double-dash form is only the local cache name), and uploads it to a
   release named `<tool>-<fork-tag>` on this repo.
 - The formula's `bottle do` block points `root_url` at that release. The
   binaries embed no prefix, hence `cellar: :any_skip_relocation` — the same
