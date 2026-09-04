@@ -21,6 +21,16 @@ class Vfox < Formula
     strategy :github_latest
   end
 
+  # Poured on Intel Macs that would otherwise build from source (macOS 12 has
+  # no core bottles; the build's Go module downloads may be blocked locally);
+  # built by this tap's bottle-vfox.yml workflow -- see README "Bottles".
+  # CGO off + trimpath -> no prefix references, hence any_skip_relocation.
+  bottle do
+    root_url "https://github.com/xooooooooox/homebrew-patched/releases/download/vfox-v1.0.11-patched.2"
+    sha256 cellar: :any_skip_relocation, sequoia:  "76447adfd095a14fa4e50833cdda97e56b639189b35557218c1cc3ae33d26cff"
+    sha256 cellar: :any_skip_relocation, monterey: "76447adfd095a14fa4e50833cdda97e56b639189b35557218c1cc3ae33d26cff"
+  end
+
   depends_on "go" => :build
 
   def install
