@@ -69,7 +69,10 @@ its own bottle:
 - The formula's `bottle do` block points `root_url` at that release. The
   binaries embed no prefix, hence `cellar: :any_skip_relocation` — the same
   bottle serves `/usr/local` and `/opt/homebrew`.
-- Currently lazygit-only, `monterey` tag.
+- Current bottles: lazygit (`monterey`), vfox (`monterey` + `sequoia` — the
+  same lane also serves supported Intel machines where a source build is
+  undesirable, e.g. the Go module proxy is unreachable from the local
+  network).
 
 ## Adding a new tool
 

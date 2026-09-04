@@ -1,0 +1,75 @@
+# Builds Homebrew bottles for the patched vfox so Intel Macs that would
+# otherwise compile it from source can pour a prebuilt keg (macOS 12 has no
+# core bottles; elsewhere the build's Go module downloads may be blocked by
+# the local network). vfox is pure Go, so an ubuntu runner cross-compiles
+# darwin/amd64 with CGO off; the resulting binary has no prefix references,
+# hence cellar: :any_skip_relocation in the formula's bottle block. One keg,
+# two bottle names (monterey, sequoia).
+name: bottle-vfox
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "xooooooooox/vfox tag to bottle (e.g. v1.0.11-patched.2)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  bottle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out tap
+        uses: actions/checkout@v4
+
+      - name: Check out vfox fork at tag
+        uses: actions/checkout@v4
+        with:
+          repository: xooooooooox/vfox
+          ref: ${{ inputs.tag }}
+          path: vfox-src
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: vfox-src/go.mod
+
+      - name: Build darwin/amd64 keg
+        run: |
+          # keg dir must match brew's <version>[_<revision>] — read both from
+          # the formula, not the tag (tag patched.<n> and revision can differ)
+          version=$(sed -n 's/^  version "\(.*\)"$/\1/p' Formula/vfox.rb)
+          revision=$(sed -n 's/^  revision \([0-9]*\)$/\1/p' Formula/vfox.rb)
+          pkgver="${version}${revision:+_$revision}"
+          echo "pkgver=$pkgver" >> "$GITHUB_ENV"
+          keg="bottle/vfox/$pkgver"
+          mkdir -p "$keg/bin" "$keg/etc/bash_completion.d" "$keg/share/zsh/site-functions"
+          # no -mod=vendor (vfox does not vendor) and no ldflags (the version
+          # string is a source constant), mirroring Formula/vfox.rb
+          (cd vfox-src && GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 \
+            go build -trimpath -o "$GITHUB_WORKSPACE/$keg/bin/vfox" .)
+          cp vfox-src/completions/bash_autocomplete "$keg/etc/bash_completion.d/vfox"
+          cp vfox-src/completions/zsh_autocomplete "$keg/share/zsh/site-functions/_vfox"
+          cp vfox-src/LICENSE vfox-src/README.md "$keg/"
+
+      - name: Pack bottles and print sha256
+        run: |
+          for os in monterey sequoia; do
+            bottle="vfox-${pkgver}.${os}.bottle.tar.gz"
+            tar --owner=0 --group=0 --numeric-owner -czf "$bottle" -C bottle vfox
+            sha256sum "$bottle" | tee -a "$GITHUB_STEP_SUMMARY"
+          done
+
+      - name: Upload to tap release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          release="vfox-$TAG"
+          gh release view "$release" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1 || \
+            gh release create "$release" -R "$GITHUB_REPOSITORY" \
+              --title "$release" \
+              --notes "Homebrew bottles for xooooooooox/vfox tag $TAG (darwin/amd64; monterey, sequoia)."
+          gh release upload "$release" vfox-"$pkgver".*.bottle.tar.gz -R "$GITHUB_REPOSITORY" --clobber
