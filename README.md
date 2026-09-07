@@ -20,8 +20,13 @@ brew install xooooooooox/patched/<tool>
 | Tool | Patch | Upstream issue | Retire when |
 |------|-------|----------------|-------------|
 | [yadm](https://github.com/xooooooooox/yadm/tree/fix/zsh-completion-add) | zsh completion for `add`/`checkout`: delegate to git's completion (CWD-relative candidates, respects ignore rules, no full `$HOME` scan) | [yadm-dev/yadm#359](https://github.com/yadm-dev/yadm/issues/359), [#355](https://github.com/yadm-dev/yadm/issues/355) | fix merged upstream + released |
-| [vfox](https://github.com/xooooooooox/vfox/tree/patched-v1.0.11) | (1) deterministic PATH order in `vfox env` output: collect per-SDK envs, merge sorted-by-name after `g.Wait()` — goroutine completion order shuffled same-scope entries, permanently invalidating the env-state cache (slow rebuild on every hook run / `cd`); (2) machine-global shared env cache (`~/.version-fox/env-cache/`): new sessions reuse the computed env output (content-addressed by vfox version + shell + PATH + config path/mtime) instead of a full plugin rebuild — session-scoped, legacy-enabled and degraded (SDK-error) outputs are excluded from sharing, so session semantics stay intact | (1) [version-fox/vfox#690](https://github.com/version-fox/vfox/issues/690), PR [#691](https://github.com/version-fox/vfox/pull/691); (2) [#694](https://github.com/version-fox/vfox/issues/694) (proposal; PR on maintainer interest) | both fixes merged + released (> 1.0.11) |
 | [lazygit](https://github.com/xooooooooox/lazygit/tree/fix-recent-repos-git-location) | recent repos menu (`ctrl+r`) for dotfile repos opened via `--git-dir`/`--work-tree` (yadm/vcsh): the list stores the git location env vars alongside the path and restores them on switch — entries whose git dir isn't at `<path>/.git` used to be filtered out of the menu, and switching to a surviving entry failed with "not a git repository". Base: upstream master > v0.64.1, which includes the [#5910](https://github.com/jesseduffield/lazygit/pull/5910) fix that retired our previous 0.64.0 submodule-escape patch | [jesseduffield/lazygit#5942](https://github.com/jesseduffield/lazygit/issues/5942) | fix merged upstream + released (> 0.64.1) |
+
+## Retired
+
+| Tool | Patch | Upstream issue | Retired |
+|------|-------|----------------|---------|
+| [vfox](https://github.com/xooooooooox/vfox/tree/patched-v1.0.11) | (1) deterministic PATH order in `vfox env` output: collect per-SDK envs, merge sorted-by-name after `g.Wait()` — goroutine completion order shuffled same-scope entries, permanently invalidating the env-state cache (slow rebuild on every hook run / `cd`); (2) machine-global shared env cache (`~/.version-fox/env-cache/`): new sessions reuse the computed env output instead of a full plugin rebuild | (1) [version-fox/vfox#690](https://github.com/version-fox/vfox/issues/690), PR [#691](https://github.com/version-fox/vfox/pull/691); (2) [#694](https://github.com/version-fox/vfox/issues/694) | 2026-09-07 — patch (1) merged upstream and shipped in v1.0.12; patch (2) closed unimplemented, dropped (~15ms/rebuild trade-off accepted). Replacements: core (current macOS) / [prebuilt](https://github.com/xooooooooox/homebrew-prebuilt) vfox (Intel/monterey) |
 
 ## Conventions
 
@@ -69,10 +74,10 @@ its own bottle:
 - The formula's `bottle do` block points `root_url` at that release. The
   binaries embed no prefix, hence `cellar: :any_skip_relocation` — the same
   bottle serves `/usr/local` and `/opt/homebrew`.
-- Current bottles: lazygit (`monterey`), vfox (`monterey` + `sequoia` — the
-  same lane also serves supported Intel machines where a source build is
-  undesirable, e.g. the Go module proxy is unreachable from the local
-  network).
+- Current bottles: lazygit (`monterey`). The same lane also serves supported
+  Intel machines where a source build is undesirable, e.g. the Go module
+  proxy is unreachable from the local network. Retired tools' bottle
+  releases stay up as history (vfox `monterey` + `sequoia`).
 
 ## Adding a new tool
 

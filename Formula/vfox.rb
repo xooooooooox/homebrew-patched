@@ -1,10 +1,10 @@
-# Patched vfox: (1) deterministic PATH order in `vfox env` output — upstream
-# orders same-scope SDK paths by goroutine completion, permanently
-# invalidating the env-state cache (slow rebuild on every hook run);
-# (2) machine-global shared env cache — new sessions reuse the computed env
-# output instead of rebuilding it, with session-scope / degraded outputs
-# excluded from sharing.
-# Retire this formula once upstream ships both fixes (> v1.0.11).
+# Retired 2026-09-07: patch (1), deterministic PATH order in `vfox env`
+# output, merged upstream (version-fox/vfox#691) and shipped in v1.0.12;
+# patch (2), the machine-global shared env cache, was closed unimplemented
+# (#694) and is retired with the formula (~15ms/rebuild trade-off accepted).
+# Kept as history and as the template for the next patch — see README
+# "Retiring a tool". Replacements: core (arm/current macOS) or
+# xooooooooox/prebuilt/vfox (Intel/monterey).
 class Vfox < Formula
   desc "Cross-language version manager (patched: stable PATH order + shared env cache)"
   homepage "https://vfox.dev/"
@@ -21,15 +21,7 @@ class Vfox < Formula
     strategy :github_latest
   end
 
-  # Poured on Intel Macs that would otherwise build from source (macOS 12 has
-  # no core bottles; the build's Go module downloads may be blocked locally);
-  # built by this tap's bottle-vfox.yml workflow -- see README "Bottles".
-  # CGO off + trimpath -> no prefix references, hence any_skip_relocation.
-  bottle do
-    root_url "https://github.com/xooooooooox/homebrew-patched/releases/download/vfox-v1.0.11-patched.2"
-    sha256 cellar: :any_skip_relocation, sequoia:  "76447adfd095a14fa4e50833cdda97e56b639189b35557218c1cc3ae33d26cff"
-    sha256 cellar: :any_skip_relocation, monterey: "76447adfd095a14fa4e50833cdda97e56b639189b35557218c1cc3ae33d26cff"
-  end
+  deprecate! date: "2026-09-07", because: "has its PATH-order fix upstream in v1.0.12 (shared cache dropped)"
 
   depends_on "go" => :build
 
